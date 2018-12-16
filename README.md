@@ -7,7 +7,7 @@ Functions:
 - Get by defid
 
 
-#Example
+## Example
 ```
 //Initialize client
 client:= ugodict.GetClient()
