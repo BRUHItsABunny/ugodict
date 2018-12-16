@@ -1,7 +1,13 @@
 # ugodict
-Urban Dictionary wrapper in GO
+The most complete wrapper in GO with Keep-Alive support for UrbanDictionary
 
-##Example
+Functions:
+- Get random
+- List by word
+- Get by defid
+
+
+#Example
 ```
 //Initialize client
 client:= ugodict.GetClient()
