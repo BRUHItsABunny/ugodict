@@ -2,6 +2,7 @@ package ugodict
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -11,11 +12,11 @@ type UrbanClient struct {
 	BaseURL string
 }
 
-type UrbanTermResponse struct {
-	List []map[string]interface{} `json:"list"`
+type UrbanResponse struct {
+	List []*UrbanDefinition `json:"list"`
 }
 
-type UrbanResult struct {
+type UrbanDefinition struct {
 	Author      string      `json:"author"`
 	CurrentVote string      `json:"current_vote"`
 	DefId       int         `json:"defid"`
@@ -36,7 +37,7 @@ func GetClient() UrbanClient {
 	}
 }
 
-func (client UrbanClient) DefineByTerm(word string) ([]UrbanResult, error, error) {
+func (client UrbanClient) DefineByTerm(word string) ([]*UrbanDefinition, error, error) {
 	req, _ := http.NewRequest("GET", client.BaseURL+"define", nil)
 	query := req.URL.Query()
 	query.Add("term", word)
@@ -44,33 +45,24 @@ func (client UrbanClient) DefineByTerm(word string) ([]UrbanResult, error, error
 	resp, err := client.Client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
+		return nil, err, nil
 	}
-	var result UrbanTermResponse
-	var resultUrban []UrbanResult
-	err2 := json.NewDecoder(resp.Body).Decode(&result)
+	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Fatalln(err)
+		log.Fatalln(err2)
+		return nil, err, err2
 	}
-	for _, urbanDef := range result.List {
-		test := UrbanResult{
-			Author:      urbanDef["author"].(string),
-			CurrentVote: urbanDef["current_vote"].(string),
-			DefId:       int(urbanDef["defid"].(float64)),
-			Definition:  urbanDef["definition"].(string),
-			Example:     urbanDef["example"].(string),
-			PermaLink:   urbanDef["permalink"].(string),
-			SoundUrls:   urbanDef["sound_urls"],
-			ThumbsDown:  int(urbanDef["thumbs_down"].(float64)),
-			ThumbsUp:    int(urbanDef["thumbs_up"].(float64)),
-			Word:        urbanDef["word"].(string),
-			WrittenOn:   urbanDef["written_on"].(string),
-		}
-		resultUrban = append(resultUrban, test)
+	defer resp.Body.Close()
+	result := new(UrbanResponse)
+	_ = json.Unmarshal(bodyBytes, result)
+	if len(result.List) > 0 {
+		return result.List, err, err2
+	} else {
+		return nil, err, err2
 	}
-	return resultUrban, err, err2
 }
 
-func (client UrbanClient) DefineById(definitionId string) (UrbanResult, error, error) {
+func (client UrbanClient) DefineById(definitionId string) (*UrbanDefinition, error, error) {
 	req, _ := http.NewRequest("GET", client.BaseURL+"define", nil)
 	query := req.URL.Query()
 	query.Add("defid", definitionId)
@@ -78,53 +70,41 @@ func (client UrbanClient) DefineById(definitionId string) (UrbanResult, error, e
 	resp, err := client.Client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
+		return nil, err, nil
 	}
-	var result UrbanTermResponse
-	err2 := json.NewDecoder(resp.Body).Decode(&result)
+	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Fatalln(err)
+		log.Fatalln(err2)
+		return nil, err, err2
 	}
-	urbanDef := result.List[0]
-	resultUrban := UrbanResult{
-		Author:      urbanDef["author"].(string),
-		CurrentVote: urbanDef["current_vote"].(string),
-		DefId:       int(urbanDef["defid"].(float64)),
-		Definition:  urbanDef["definition"].(string),
-		Example:     urbanDef["example"].(string),
-		PermaLink:   urbanDef["permalink"].(string),
-		SoundUrls:   urbanDef["sound_urls"],
-		ThumbsDown:  int(urbanDef["thumbs_down"].(float64)),
-		ThumbsUp:    int(urbanDef["thumbs_up"].(float64)),
-		Word:        urbanDef["word"].(string),
-		WrittenOn:   urbanDef["written_on"].(string),
+	defer resp.Body.Close()
+	result := new(UrbanResponse)
+	_ = json.Unmarshal(bodyBytes, result)
+	if len(result.List) > 0 {
+		return result.List[0], err, err2
+	} else {
+		return nil, err, err2
 	}
-	return resultUrban, err, err2
 }
 
-func (client UrbanClient) DefineRandom(word string) (UrbanResult, error, error) {
+func (client UrbanClient) DefineRandom(word string) (*UrbanDefinition, error, error) {
 	req, _ := http.NewRequest("GET", client.BaseURL+"random", nil)
 	resp, err := client.Client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
+		return nil, err, nil
 	}
-	var result UrbanTermResponse
-	err2 := json.NewDecoder(resp.Body).Decode(&result)
+	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Fatalln(err)
+		log.Fatalln(err2)
+		return nil, err, err2
 	}
-	urbanDef := result.List[0]
-	resultUrban := UrbanResult{
-		Author:      urbanDef["author"].(string),
-		CurrentVote: urbanDef["current_vote"].(string),
-		DefId:       int(urbanDef["defid"].(float64)),
-		Definition:  urbanDef["definition"].(string),
-		Example:     urbanDef["example"].(string),
-		PermaLink:   urbanDef["permalink"].(string),
-		SoundUrls:   urbanDef["sound_urls"],
-		ThumbsDown:  int(urbanDef["thumbs_down"].(float64)),
-		ThumbsUp:    int(urbanDef["thumbs_up"].(float64)),
-		Word:        urbanDef["word"].(string),
-		WrittenOn:   urbanDef["written_on"].(string),
+	defer resp.Body.Close()
+	result := new(UrbanResponse)
+	_ = json.Unmarshal(bodyBytes, result)
+	if len(result.List) > 0 {
+		return result.List[0], err, err2
+	} else {
+		return nil, err, err2
 	}
-	return resultUrban, err, err2
 }
