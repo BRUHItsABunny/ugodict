@@ -31,9 +31,9 @@ if result != nil {
     fmt.Println("Written on: " + definition.WrittenOn)
 }
 if err != nil {
-	fmt.Println(err)
+    fmt.Println(err)
 }
 if err2 != nil {
-	fmt.Println(err2)
+    fmt.Println(err2)
 }
 ```

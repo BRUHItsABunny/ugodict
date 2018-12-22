@@ -5,10 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 type UrbanClient struct {
-	Client  http.Client
+	Client  *http.Client
 	BaseURL string
 }
 
@@ -32,7 +33,13 @@ type UrbanDefinition struct {
 
 func GetClient() UrbanClient {
 	return UrbanClient{
-		Client:  http.Client{},
+		Client: &http.Client{
+			Timeout: time.Second * 10,
+			Transport: &http.Transport{
+				TLSHandshakeTimeout: 5 * time.Second,
+				DisableCompression:  false,
+				DisableKeepAlives:   false,
+			}},
 		BaseURL: "https://api.urbandictionary.com/v0/",
 	}
 }
