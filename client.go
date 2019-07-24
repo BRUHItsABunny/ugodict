@@ -1,117 +1,84 @@
 package ugodict
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"log"
+	"errors"
+	gokhttp "github.com/BRUHItsABunny/gOkHttp"
 	"net/http"
-	"time"
 )
 
-type UrbanClient struct {
-	Client  *http.Client
-	BaseURL string
-}
-
-type UrbanResponse struct {
-	List []*UrbanDefinition `json:"list"`
-}
-
-type UrbanDefinition struct {
-	Author      string      `json:"author"`
-	CurrentVote string      `json:"current_vote"`
-	DefId       int         `json:"defid"`
-	Definition  string      `json:"definition"`
-	Example     string      `json:"example"`
-	PermaLink   string      `json:"permalink"`
-	SoundUrls   interface{} `json:"sound_urls"`
-	ThumbsDown  int         `json:"thumbs_down"`
-	ThumbsUp    int         `json:"thumbs_up"`
-	Word        string      `json:"word"`
-	WrittenOn   string      `json:"written_on"`
-}
-
 func GetClient() UrbanClient {
+	client := gokhttp.GetHTTPClient(nil)
 	return UrbanClient{
-		Client: &http.Client{
-			Timeout: time.Second * 10,
-			Transport: &http.Transport{
-				TLSHandshakeTimeout: 5 * time.Second,
-				DisableCompression:  false,
-				DisableKeepAlives:   false,
-			}},
+		Client:  &client,
 		BaseURL: "https://api.urbandictionary.com/v0/",
 	}
 }
 
-func (client UrbanClient) DefineByTerm(word string) ([]*UrbanDefinition, error, error) {
-	req, _ := http.NewRequest("GET", client.BaseURL+"define", nil)
-	query := req.URL.Query()
-	query.Add("term", word)
-	req.URL.RawQuery = query.Encode()
-	resp, err := client.Client.Do(req)
-	if err != nil {
-		log.Fatalln(err)
-		return nil, err, nil
+func (client UrbanClient) DefineByTerm(word string) ([]*UrbanDefinition, error) {
+
+	var err error
+	var req *http.Request
+	var resp *gokhttp.HttpResponse
+	var result UrbanResponse
+
+	req, err = client.Client.MakeGETRequest(client.BaseURL+"define", map[string]string{"term": word}, map[string]string{})
+	if err == nil {
+		resp, err = client.Client.Do(req)
+		if err == nil {
+			err = resp.Object(&result)
+			if err == nil {
+				if len(result.List) > 0 {
+					return result.List, nil
+				}
+				err = errors.New("no results found")
+			}
+		}
 	}
-	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Fatalln(err2)
-		return nil, err, err2
-	}
-	defer resp.Body.Close()
-	result := new(UrbanResponse)
-	_ = json.Unmarshal(bodyBytes, result)
-	if len(result.List) > 0 {
-		return result.List, err, err2
-	} else {
-		return nil, err, err2
-	}
+	return nil, err
 }
 
-func (client UrbanClient) DefineById(definitionId string) (*UrbanDefinition, error, error) {
-	req, _ := http.NewRequest("GET", client.BaseURL+"define", nil)
-	query := req.URL.Query()
-	query.Add("defid", definitionId)
-	req.URL.RawQuery = query.Encode()
-	resp, err := client.Client.Do(req)
-	if err != nil {
-		log.Fatalln(err)
-		return nil, err, nil
+func (client UrbanClient) DefineById(definitionId string) (*UrbanDefinition, error) {
+
+	var err error
+	var req *http.Request
+	var resp *gokhttp.HttpResponse
+	var result UrbanResponse
+
+	req, err = client.Client.MakeGETRequest(client.BaseURL+"define", map[string]string{"defid": definitionId}, map[string]string{})
+	if err == nil {
+		resp, err = client.Client.Do(req)
+		if err == nil {
+			err = resp.Object(&result)
+			if err == nil {
+				if len(result.List) > 0 {
+					return result.List[0], nil
+				}
+				err = errors.New("no results found")
+			}
+		}
 	}
-	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Fatalln(err2)
-		return nil, err, err2
-	}
-	defer resp.Body.Close()
-	result := new(UrbanResponse)
-	_ = json.Unmarshal(bodyBytes, result)
-	if len(result.List) > 0 {
-		return result.List[0], err, err2
-	} else {
-		return nil, err, err2
-	}
+	return nil, err
 }
 
-func (client UrbanClient) DefineRandom(word string) (*UrbanDefinition, error, error) {
-	req, _ := http.NewRequest("GET", client.BaseURL+"random", nil)
-	resp, err := client.Client.Do(req)
-	if err != nil {
-		log.Fatalln(err)
-		return nil, err, nil
+func (client UrbanClient) DefineRandom() (*UrbanDefinition, error) {
+
+	var err error
+	var req *http.Request
+	var resp *gokhttp.HttpResponse
+	var result UrbanResponse
+
+	req, err = client.Client.MakeGETRequest(client.BaseURL+"random", map[string]string{}, map[string]string{})
+	if err == nil {
+		resp, err = client.Client.Do(req)
+		if err == nil {
+			err = resp.Object(&result)
+			if err == nil {
+				if len(result.List) > 0 {
+					return result.List[0], nil
+				}
+				err = errors.New("no results found")
+			}
+		}
 	}
-	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Fatalln(err2)
-		return nil, err, err2
-	}
-	defer resp.Body.Close()
-	result := new(UrbanResponse)
-	_ = json.Unmarshal(bodyBytes, result)
-	if len(result.List) > 0 {
-		return result.List[0], err, err2
-	} else {
-		return nil, err, err2
-	}
+	return nil, err
 }

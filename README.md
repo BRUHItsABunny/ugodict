@@ -13,10 +13,10 @@ Functions:
 client:= ugodict.GetClient()
 
 //Get definitions
-result, err, err2 := client.DefineByTerm("Eugene")
+result, err := client.DefineByTerm("Eugene")
 
 //Check null
-if result != nil {
+if err == nil {
     
     //Print data
     definition := result[0]
@@ -29,11 +29,7 @@ if result != nil {
     fmt.Println("Thumbs down: " + strconv.Itoa(definition.ThumbsDown))
     fmt.Println("Permalink: " + definition.PermaLink)
     fmt.Println("Written on: " + definition.WrittenOn)
-}
-if err != nil {
+} else {
     fmt.Println(err)
-}
-if err2 != nil {
-    fmt.Println(err2)
 }
 ```
