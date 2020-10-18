@@ -4,6 +4,7 @@ import (
 	"errors"
 	gokhttp "github.com/BRUHItsABunny/gOkHttp"
 	"net/http"
+	"net/url"
 )
 
 func GetClient() UrbanClient {
@@ -21,7 +22,7 @@ func (client UrbanClient) DefineByTerm(word string) ([]*UrbanDefinition, error) 
 	var resp *gokhttp.HttpResponse
 	var result UrbanResponse
 
-	req, err = client.Client.MakeGETRequest(client.BaseURL+"define", map[string]string{"term": word}, map[string]string{})
+	req, err = client.Client.MakeGETRequest(client.BaseURL+"define", url.Values{"term": []string{word}}, map[string]string{})
 	if err == nil {
 		resp, err = client.Client.Do(req)
 		if err == nil {
@@ -44,7 +45,7 @@ func (client UrbanClient) DefineById(definitionId string) (*UrbanDefinition, err
 	var resp *gokhttp.HttpResponse
 	var result UrbanResponse
 
-	req, err = client.Client.MakeGETRequest(client.BaseURL+"define", map[string]string{"defid": definitionId}, map[string]string{})
+	req, err = client.Client.MakeGETRequest(client.BaseURL+"define", url.Values{"defid": []string{definitionId}}, map[string]string{})
 	if err == nil {
 		resp, err = client.Client.Do(req)
 		if err == nil {
@@ -67,7 +68,7 @@ func (client UrbanClient) DefineRandom() (*UrbanDefinition, error) {
 	var resp *gokhttp.HttpResponse
 	var result UrbanResponse
 
-	req, err = client.Client.MakeGETRequest(client.BaseURL+"random", map[string]string{}, map[string]string{})
+	req, err = client.Client.MakeGETRequest(client.BaseURL+"random", url.Values{}, map[string]string{})
 	if err == nil {
 		resp, err = client.Client.Do(req)
 		if err == nil {
