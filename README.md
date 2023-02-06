@@ -1,35 +1,20 @@
-# ugodict
-The most complete wrapper in GO with Keep-Alive support for UrbanDictionary
+# UGoDict
+The most complete library in Go for [UrbanDictionary](https://www.urbandictionary.com/)
 
-Functions:
-- Get random
-- List by word
-- Get by defid
+### Features 
 
+This library supports the following features:
+* Get random definition
+* List of definitions by word
+* Get definition by id
+* Get auto complete suggestion by word
+* Vote on definition
 
-## Example
+### Usage
+
+Just `go get` the module like this:
+```shell
+go get github.com/BRUHItsABunny/ugodict
 ```
-//Initialize client
-client:= ugodict.GetClient()
 
-//Get definitions
-result, err := client.DefineByTerm("Eugene")
-
-//Check null
-if err == nil {
-    
-    //Print data
-    definition := result[0]
-    fmt.Println("ID: " + strconv.Itoa(definition.DefId))
-    fmt.Println("Author: " + definition.Author)
-    fmt.Println("Word: " + definition.Word)
-    fmt.Println("Definition: " + definition.Definition)
-    fmt.Println("Example: " + definition.Example)
-    fmt.Println("Thumbs up: " + strconv.Itoa(definition.ThumbsUp))
-    fmt.Println("Thumbs down: " + strconv.Itoa(definition.ThumbsDown))
-    fmt.Println("Permalink: " + definition.PermaLink)
-    fmt.Println("Written on: " + definition.WrittenOn)
-} else {
-    fmt.Println(err)
-}
-```
+For examples on how to use the library, take a look in [lib_test.go](https://github.com/BRUHItsABunny/ugodict/blob/main/lib_test.go)
